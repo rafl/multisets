@@ -1,0 +1,41 @@
+cabal-version:      3.0
+name:               multisets
+version:            0.1.0.0
+synopsis:
+    Multisets with Natural counts by default and configurable count types
+
+-- description:
+homepage:           https://github.com/rafl/multisets
+license:            MIT
+license-file:       LICENSE
+author:             Florian Ragwitz
+maintainer:         florian.ragwitz@gmail.com
+-- copyright:
+category:           Data
+build-type:         Simple
+extra-doc-files:    CHANGELOG.md
+-- extra-source-files:
+
+common warnings
+    ghc-options: -Wall
+
+library
+    import:           warnings
+    exposed-modules:  MyLib
+    -- other-modules:
+    -- other-extensions:
+    build-depends:    base ^>=4.21.0.0
+    hs-source-dirs:   src
+    default-language: Haskell2010
+
+test-suite multisets-test
+    import:           warnings
+    default-language: Haskell2010
+    -- other-modules:
+    -- other-extensions:
+    type:             exitcode-stdio-1.0
+    hs-source-dirs:   test
+    main-is:          Main.hs
+    build-depends:
+        base ^>=4.21.0.0,
+        multisets
