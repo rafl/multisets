@@ -2,7 +2,7 @@ cabal-version:      3.0
 name:               multisets
 version:            0.1.0.0
 synopsis:
-    Multisets with Natural counts by default and configurable count types
+    Multisets with arbitrary-precision Natural multiplicities
 
 -- description:
 homepage:           https://github.com/rafl/multisets
@@ -21,10 +21,10 @@ common warnings
 
 library
     import:           warnings
-    exposed-modules:  MyLib
+    exposed-modules:  Data.MultiSet.Natural
     -- other-modules:
     -- other-extensions:
-    build-depends:    base ^>=4.21.0.0
+    build-depends:    base ^>=4.21.0.0, containers
     hs-source-dirs:   src
     default-language: Haskell2010
 
