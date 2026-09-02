@@ -25,16 +25,14 @@ instance (Ord a) => Monoid (MultiSet a) where
     mempty = empty
 
 instance (Ord a) => Ord (MultiSet a) where
-    compare xs ys = compareRuns (M.toAscList $ unMS xs) (M.toAscList $ unMS ys)
+    compare as bs = compareRuns (M.toAscList $ unMS as) (M.toAscList $ unMS bs)
       where
-        compareRuns [] [] = EQ
-        compareRuns [] _ = LT
-        compareRuns _ [] = GT
-        compareRuns ((x, n) : xs') ((y, m) : ys') =
+        compareRuns ((x, n) : xs) ((y, m) : ys) =
             compare x y <> case compare n m of
-                EQ -> compareRuns xs' ys'
-                LT -> if P.null xs' then LT else GT
-                GT -> if P.null ys' then GT else LT
+                EQ -> compareRuns xs ys
+                LT -> if P.null xs then LT else GT
+                GT -> if P.null ys then GT else LT
+        compareRuns xs ys = compare xs ys
 
 instance (Show a) => Show (MultiSet a) where
     showsPrec d ms =
