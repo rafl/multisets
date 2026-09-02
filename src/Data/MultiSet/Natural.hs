@@ -16,13 +16,25 @@ import qualified Prelude as P
 
 -- invariant: n > 0
 newtype MultiSet a = MS {unMS :: M.Map a Natural}
-    deriving (Eq, Ord)
+    deriving (Eq)
 
 instance (Ord a) => Semigroup (MultiSet a) where
     (<>) = union
 
 instance (Ord a) => Monoid (MultiSet a) where
     mempty = empty
+
+instance (Ord a) => Ord (MultiSet a) where
+    compare xs ys = compareRuns (M.toAscList $ unMS xs) (M.toAscList $ unMS ys)
+      where
+        compareRuns [] [] = EQ
+        compareRuns [] _ = LT
+        compareRuns _ [] = GT
+        compareRuns ((x, n) : xs') ((y, m) : ys') =
+            compare x y <> case compare n m of
+                EQ -> compareRuns xs' ys'
+                LT -> if P.null xs' then LT else GT
+                GT -> if P.null ys' then GT else LT
 
 instance (Show a) => Show (MultiSet a) where
     showsPrec d ms =
