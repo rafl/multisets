@@ -38,13 +38,13 @@ instance (Show a) => Show (MultiSet a) where
     showsPrec d ms =
         showParen (d > 10) $
             showString "fromMultiplicityList "
-                . showsPrec 11 (M.toAscList $ unMS ms)
+                . shows (M.toAscList $ unMS ms)
 
 instance (Ord a, Read a) => Read (MultiSet a) where
     readsPrec d =
         readParen (d > 10) $ \s -> do
             ("fromMultiplicityList", rest) <- lex s
-            (xs, rest') <- readsPrec 11 rest
+            (xs, rest') <- reads rest
             pure (fromMultiplicityList xs, rest')
 
 empty :: MultiSet a
