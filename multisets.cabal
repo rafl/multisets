@@ -37,5 +37,5 @@ test-suite multisets-test
     hs-source-dirs:   test
     main-is:          Main.hs
     build-depends:
-        base, containers, mtl,
-        multisets, tasty, tasty-quickcheck, QuickCheck, deepseq, tasty-hunit
+        base, containers,
+        multisets, tasty, tasty-quickcheck, QuickCheck, deepseq

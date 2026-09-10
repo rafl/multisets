@@ -40,7 +40,7 @@
   with the additional invariant of all map values being non-zero. The API
   guarantees that invariant, with the notable exception of the provided
   'Generic' instance. Use 'Generic' with care, or risk many provided functions
-  behaving observably incorrect.
+  behaving observably incorrectly.
 -}
 module Data.MultiSet.Natural (
     -- * Comparison to "Data.MultiSet" #comparison#

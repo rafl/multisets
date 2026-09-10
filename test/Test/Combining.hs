@@ -46,7 +46,7 @@ tests =
         , testProperty "cartesianProduct/multiplicity" prop_cartesianProductMultiplicity
         , testProperty "cartesianProduct/size" prop_cartesianProductSize
         , testProperty "cartesianProduct/distinctSize" prop_cartesianProductDistinctSize
-        , testProperty "difference+intersection decompositon" prop_differenceIntersectionDecomposition
+        , testProperty "difference+intersection decomposition" prop_differenceIntersectionDecomposition
         ]
 
 prop_unionEmpty :: AMS -> Property

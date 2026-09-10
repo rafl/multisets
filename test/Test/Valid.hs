@@ -4,8 +4,8 @@ module Test.Valid (
     tests,
 ) where
 
-import Control.Monad.Identity
 import Data.Bifunctor
+import Data.Functor.Identity
 import Data.List.NonEmpty (NonEmpty (..))
 import qualified Data.Map as M
 import qualified Data.MultiSet.Natural as MS

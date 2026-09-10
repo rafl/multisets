@@ -2,7 +2,7 @@ module Test.Updates (
     tests,
 ) where
 
-import Control.Monad.Identity
+import Data.Functor.Identity
 import qualified Data.MultiSet.Natural as MS
 import Numeric.Natural
 import Test.Gen

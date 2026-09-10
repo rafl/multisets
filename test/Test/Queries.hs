@@ -88,7 +88,6 @@ prop_isSubsetOfConstructed (AMS xs) (AMS ys') (AMS zs') = property $ MS.isSubset
     ys = MS.union xs ys'
     zs = MS.union ys zs'
 
--- TODO: gen
 prop_isProperSubsetOfSubset :: Int -> AMS -> Property
 prop_isProperSubsetOfSubset x (AMS xs) =
     conjoin
@@ -101,7 +100,6 @@ prop_isProperSubsetOfSubset x (AMS xs) =
 prop_isProperSubsetOfIrreflexive :: AMS -> Property
 prop_isProperSubsetOfIrreflexive (AMS xs) = property . not $ MS.isProperSubsetOf xs xs
 
--- TODO: gen
 prop_disjointSymmetric :: AMS -> AMS -> Property
 prop_disjointSymmetric (AMS xs) (AMS ys) = MS.disjoint xs ys === MS.disjoint ys xs
 
