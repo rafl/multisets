@@ -26,7 +26,9 @@
 
   For types with an 'Ord' instance which isn't structural, e.g.
 
-  >>> data X = X Int String deriving (Eq, Show)
+  >>> data X = X Int String
+  >>> instance Eq X where
+  >>>   (X n _) == (X m _) == n == m
   >>> instance Ord X where
   >>>   (X n _) `compare` (X m _) = n `compare` m
 
