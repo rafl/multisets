@@ -8,8 +8,8 @@ import Control.DeepSeq
 import Control.Exception
 import Data.Either
 import Data.List (sort)
-import qualified Data.Semigroup as SG
 import qualified Data.MultiSet.Natural as MS
+import qualified Data.Semigroup as SG
 import qualified GHC.Generics as G
 import Test.Gen
 import Test.Tasty
