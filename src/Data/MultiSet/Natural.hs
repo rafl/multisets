@@ -175,6 +175,7 @@ module Data.MultiSet.Natural (
 ) where
 
 import Control.Applicative ((<|>))
+import qualified Control.Applicative as A
 import Control.DeepSeq (NFData (..))
 import Control.Monad
 import Data.Bifunctor
@@ -355,7 +356,7 @@ partitionWithMultiplicityA ::
 partitionWithMultiplicityA f =
     fmap (bimap wrap wrap) . M.foldrWithKey classify (pure ([], [])) . unMS
   where
-    classify x n = liftA2 (\b -> bool second first b ((x, n) :)) (f x n)
+    classify x n = A.liftA2 (\b -> bool second first b ((x, n) :)) (f x n)
     wrap = MS . M.fromDistinctAscList
 
 {- | @'map' f s@ is the 'MultiSet' obtained from applying @f@ to each element
@@ -463,7 +464,7 @@ traverseMaybeWithMultiplicity ::
     MultiSet a ->
     f (MultiSet b)
 traverseMaybeWithMultiplicity f =
-    foldrWithMultiplicity (\x n -> liftA2 (maybe id (uncurry insertMany)) (f x n)) (pure empty)
+    foldrWithMultiplicity (\x n -> A.liftA2 (maybe id (uncurry insertMany)) (f x n)) (pure empty)
 
 {- | Like 'traverseWithMultiplicity', but discards the results of the effect
 and doesn't build a resulting 'MultiSet'.
