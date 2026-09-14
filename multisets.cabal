@@ -39,3 +39,4 @@ test-suite multisets-test
     build-depends:
         base, containers,
         multisets, tasty, tasty-quickcheck, QuickCheck, deepseq
+    ghc-options: -Wall -threaded -rtsopts
