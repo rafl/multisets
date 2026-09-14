@@ -26,17 +26,19 @@
 
   For types with an 'Ord' instance which isn't structural, e.g.
 
-  >>> data X = X Int String
-  >>> instance Eq X where
-  >>>   (X n _) == (X m _) == n == m
-  >>> instance Ord X where
-  >>>   (X n _) `compare` (X m _) = n `compare` m
+  >>> data X = X Int String deriving (Show)
+  >>> :{
+        instance Eq X where
+          (X n _) == (X m _) = n == m
+        instance Ord X where
+          (X n _) `compare` (X m _) = n `compare` m
+      :}
 
   this module will generally retain the value on the left hand side of each
   operation:
 
   >>> singleton (X 1 "first") `union` singleton (X 1 "second")
-  fromMultiplicityList [(X 1 "first", 2)]
+  fromMultiplicityList [(X 1 "first",2)]
 
   __Note:__ @'MultiSet' a@ is implemented in terms of @'M.Map' a 'Natural'@,
   with the additional invariant of all map values being non-zero. The API
