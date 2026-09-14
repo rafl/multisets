@@ -180,6 +180,7 @@ import Control.Monad
 import Data.Bifunctor
 import Data.Bool
 import Data.Coerce
+import qualified Data.Foldable as F
 import Data.List (genericReplicate)
 import Data.List.NonEmpty (NonEmpty (..))
 import qualified Data.Map.Strict as M
@@ -541,7 +542,7 @@ intersection = lift2 $ M.intersectionWith min
 
 -- | The intersection of a series of 'MultiSet's.
 intersections :: (Ord a) => NonEmpty (MultiSet a) -> MultiSet a
-intersections (x :| xs) = foldl' intersection x xs
+intersections (x :| xs) = F.foldl' intersection x xs
 
 -- | The union of two 'MultiSet's, taking the maximum multiplicity of each element.
 maxUnion :: (Ord a) => MultiSet a -> MultiSet a -> MultiSet a
