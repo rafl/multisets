@@ -337,7 +337,7 @@ filterA = filterWithMultiplicityA . (const .)
 filterWithMultiplicityA ::
     (Applicative f) => (a -> Natural -> f Bool) -> MultiSet a -> f (MultiSet a)
 filterWithMultiplicityA p =
-    fmap MS . M.traverseMaybeWithKey (\x n -> ((n <$) . guard) <$> p x n) . unMS
+    fmap MS . M.traverseMaybeWithKey (\x n -> (n <$) . guard <$> p x n) . unMS
 
 {- | Split a `MultiSet` into a pair of `MultiSet`s, the elements of which do
   and do not satisfy the given predicate, respectively.

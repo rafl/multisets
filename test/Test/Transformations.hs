@@ -178,7 +178,7 @@ prop_mapMaybeMap fun (AMS xs) = MS.mapMaybe (Just . f) xs === MS.map f xs
 
 prop_mapMaybeWithMultiplicityIdentity :: AMS -> Property
 prop_mapMaybeWithMultiplicityIdentity (AMS xs) =
-    MS.mapMaybeWithMultiplicity (\x n -> Just (x, n)) xs === xs
+    MS.mapMaybeWithMultiplicity (curry Just) xs === xs
 
 prop_mapMaybeWithMultiplicityNothing :: AMS -> Property
 prop_mapMaybeWithMultiplicityNothing (AMS xs) =

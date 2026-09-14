@@ -1,3 +1,5 @@
+{-# LANGUAGE TupleSections #-}
+
 module Test.Extremes (
     tests,
 ) where
@@ -48,11 +50,11 @@ prop_maxView (AMS xs) = MS.maxView xs === fmap (\(x, _) -> (x, MS.deleteMax xs))
 
 prop_minViewWithMultiplicity :: AMS -> Property
 prop_minViewWithMultiplicity (AMS xs) =
-    MS.minViewWithMultiplicity xs === fmap (\xn -> (xn, MS.deleteMinAll xs)) (MS.lookupMin xs)
+    MS.minViewWithMultiplicity xs === fmap (,MS.deleteMinAll xs) (MS.lookupMin xs)
 
 prop_maxViewWithMultiplicity :: AMS -> Property
 prop_maxViewWithMultiplicity (AMS xs) =
-    MS.maxViewWithMultiplicity xs === fmap (\xn -> (xn, MS.deleteMaxAll xs)) (MS.lookupMax xs)
+    MS.maxViewWithMultiplicity xs === fmap (,MS.deleteMaxAll xs) (MS.lookupMax xs)
 
 prop_splitMultiplicity :: AMSWithKey -> Property
 prop_splitMultiplicity (AMSWithKey x xs) = n === MS.multiplicity x xs

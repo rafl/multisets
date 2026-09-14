@@ -76,7 +76,7 @@ prop_ordSemantics :: [Int] -> [Int] -> Property
 prop_ordSemantics xs ys = compare (MS.fromList xs) (MS.fromList ys) === compare (sort xs) (sort ys)
 
 prop_ordEq :: AMS -> AMS -> Property
-prop_ordEq (AMS xs) (AMS ys) = (compare xs ys == EQ) === (xs == ys)
+prop_ordEq (AMS xs) (AMS ys) = isEQ (compare xs ys) === (xs == ys)
 
 prop_showRead :: AMS -> Property
 prop_showRead (AMS xs) = read (show xs) === xs
@@ -137,7 +137,7 @@ prop_maxUnionOrdSemantics xs ys =
 
 prop_maxUnionOrdEq :: AMS -> AMS -> Property
 prop_maxUnionOrdEq (AMS xs) (AMS ys) =
-    (compare mx my == EQ) === (mx == my)
+    isEQ (compare mx my) === (mx == my)
   where
     mx = MS.MaxUnion xs
     my = MS.MaxUnion ys
@@ -149,3 +149,6 @@ prop_maxUnionGenericRoundtrip (AMS xs) = G.to (G.from mx) === mx
 
 prop_maxUnionNFDataDefined :: AMS -> Property
 prop_maxUnionNFDataDefined (AMS xs) = rnf (MS.MaxUnion xs) `seq` property True
+
+isEQ :: Ordering -> Bool
+isEQ = (== EQ)

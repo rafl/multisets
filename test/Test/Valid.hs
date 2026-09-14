@@ -1,4 +1,3 @@
-{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
 module Test.Valid (
@@ -69,8 +68,7 @@ tests =
             \x (LNat n) -> MS.deleteMany x n
         , preserves2 "setMultiplicity" $
             \x (LNat n) -> MS.setMultiplicity x n
-        , preservesFun "filter" $
-            MS.filter
+        , preservesFun "filter" MS.filter
         , preservesFun @(Int, Natural') @Bool "filterWithMultiplicity" $
             coerce (MS.filterWithMultiplicity . curry)
         , preservesFun "filterA" $
@@ -78,28 +76,24 @@ tests =
         , preservesFun @(Int, Natural') @Bool "filterWithMultiplicityA" $
             coerce $
                 \f -> runIdentity . MS.filterWithMultiplicityA ((Identity .) . curry f)
-        , preservesFun @Int @Int "map" $
-            MS.map
-        , preservesFun @(Int, Natural') @(Char, Natural') "mapWithMultiplicity"
-            $ coerce
-            $ MS.mapWithMultiplicity . curry
+        , preservesFun @Int @Int "map" MS.map
+        , preservesFun @(Int, Natural') @(Char, Natural') @Char "mapWithMultiplicity" $
+            coerce (MS.mapWithMultiplicity . curry)
         , preservesFun @Natural' @Natural' "mapMultiplicities" $
             coerce MS.mapMultiplicities
-        , preservesFun @Int @(Maybe Int) "mapMaybe" $
-            MS.mapMaybe
-        , preservesFun @(Int, Natural') @(Maybe (Integer, Natural')) "mapMaybeWithMultiplicity"
-            $ coerce
-            $ MS.mapMaybeWithMultiplicity . curry
+        , preservesFun @Int @(Maybe Int) "mapMaybe" MS.mapMaybe
+        , preservesFun @(Int, Natural') @(Maybe (Integer, Natural')) @Integer "mapMaybeWithMultiplicity" $
+            coerce (MS.mapMaybeWithMultiplicity . curry)
         , preservesFun @Int @AMS "concatMap" $
             \f -> MS.concatMap (getAMS . f)
         , preservesFun @Int @String "traverse" $
             \f -> runIdentity . MS.traverse (Identity . f)
         , preservesFun @Int @(Maybe Float) "traverseMaybe" $
             \f -> runIdentity . MS.traverseMaybe (Identity . f)
-        , preservesFun @(Int, Natural') @(Bool, Natural') "traverseWithMultiplicity" $
+        , preservesFun @(Int, Natural') @(Bool, Natural') @Bool "traverseWithMultiplicity" $
             coerce $
                 \f -> runIdentity . MS.traverseWithMultiplicity (\x n -> Identity $ f (x, n))
-        , preservesFun @(Int, Natural') @(Maybe (Word, Natural')) "traverseMaybeWithMultiplicity" $
+        , preservesFun @(Int, Natural') @(Maybe (Word, Natural')) @Word "traverseMaybeWithMultiplicity" $
             coerce $
                 \f -> runIdentity . MS.traverseMaybeWithMultiplicity (\x n -> Identity $ f (x, n))
         , preservesAllFun "partition" $
