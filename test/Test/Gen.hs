@@ -24,8 +24,8 @@ instance Arbitrary LNat where
     arbitrary = LNat <$> sized genNatural
       where
         genNatural s = do
-            bits <- chooseInt (0, 2 * s)
-            fromInteger <$> chooseInteger (0, 2 ^ bits - 1)
+            bits <- choose (0, 2 * s)
+            fromInteger <$> choose (0, 2 ^ bits - 1)
     shrink (LNat n) = LNat <$> shrinkIntegral n
 
 newtype AMSOf a = AMS {getAMS :: MS.MultiSet a}
