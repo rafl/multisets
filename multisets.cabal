@@ -38,5 +38,5 @@ test-suite multisets-test
     main-is:          Main.hs
     build-depends:
         base, containers,
-        multisets, tasty, tasty-quickcheck, QuickCheck, deepseq
+        multisets, tasty, tasty-quickcheck, QuickCheck >= 2.17, deepseq
     ghc-options: -Wall -threaded -rtsopts
