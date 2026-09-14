@@ -187,7 +187,7 @@ import qualified Data.Map.Strict as M
 import Data.Maybe (fromMaybe)
 import qualified Data.Set as S
 import GHC.Generics
-import Numeric.Natural
+import GHC.Natural
 import Prelude hiding (concatMap, filter, map, null, traverse)
 import qualified Prelude as P
 
