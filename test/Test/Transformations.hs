@@ -6,6 +6,7 @@ module Test.Transformations (
 ) where
 
 import Control.Monad ((>=>))
+import Data.Coerce
 import qualified Data.MultiSet.Natural as MS
 import Numeric.Natural
 import Test.Gen
@@ -71,13 +72,13 @@ prop_filterWithMultiplicityBridge fun (AMS xs) =
     f = applyFun fun
 
 prop_filterWithMultiplicityComposition ::
-    Fun (Int, Natural) Bool -> Fun (Int, Natural) Bool -> AMS -> Property
+    Fun (Int, Natural') Bool -> Fun (Int, Natural') Bool -> AMS -> Property
 prop_filterWithMultiplicityComposition pFun qFun (AMS xs) =
     MS.filterWithMultiplicity p (MS.filterWithMultiplicity q xs)
         === MS.filterWithMultiplicity (\x n -> p x n && q x n) xs
   where
-    p = curry $ applyFun pFun
-    q = curry $ applyFun qFun
+    p = curry . coerce $ applyFun pFun
+    q = curry . coerce $ applyFun qFun
 
 prop_partitionReconstruct :: Fun Int Bool -> AMS -> Property
 prop_partitionReconstruct fun (AMS xs) =
@@ -94,21 +95,21 @@ prop_partitionFilter fun (AMS xs) =
   where
     p = applyFun fun
 
-prop_partitionWithMultiplicityReconstruct :: Fun (Int, Natural) Bool -> AMS -> Property
+prop_partitionWithMultiplicityReconstruct :: Fun (Int, Natural') Bool -> AMS -> Property
 prop_partitionWithMultiplicityReconstruct fun (AMS xs) =
     conjoin
         [ MS.union yes no === xs
         , property $ MS.disjoint yes no
         ]
   where
-    (yes, no) = MS.partitionWithMultiplicity (curry $ applyFun fun) xs
+    (yes, no) = MS.partitionWithMultiplicity (curry . coerce $ applyFun fun) xs
 
-prop_partitionWithMultiplicityFilter :: Fun (Int, Natural) Bool -> AMS -> Property
+prop_partitionWithMultiplicityFilter :: Fun (Int, Natural') Bool -> AMS -> Property
 prop_partitionWithMultiplicityFilter fun (AMS xs) =
     MS.partitionWithMultiplicity p xs
         === (MS.filterWithMultiplicity p xs, MS.filterWithMultiplicity (\x n -> not $ p x n) xs)
   where
-    p = curry $ applyFun fun
+    p = curry . coerce $ applyFun fun
 
 prop_partitionWithMultiplicityBridge :: Fun Int Bool -> AMS -> Property
 prop_partitionWithMultiplicityBridge fun (AMS xs) =
@@ -133,12 +134,12 @@ prop_mapUnion (Fun _ f) (AMS xs) (AMS ys) =
 prop_mapWithMultiplicityIdentity :: AMS -> Property
 prop_mapWithMultiplicityIdentity (AMS xs) = MS.mapWithMultiplicity (,) xs === xs
 
-prop_mapWithMultiplicityDecompose :: Fun Int Int -> Fun Natural Natural -> AMS -> Property
+prop_mapWithMultiplicityDecompose :: Fun Int Int -> Fun Natural' Natural' -> AMS -> Property
 prop_mapWithMultiplicityDecompose fFun gFun (AMS xs) =
     MS.mapWithMultiplicity (\x n -> (f x, g n)) xs === MS.map f (MS.mapMultiplicities g xs)
   where
     f = applyFun fFun
-    g = applyFun gFun
+    g = coerce $ applyFun gFun
 
 prop_mapMultiplicitiesIdentity :: AMS -> Property
 prop_mapMultiplicitiesIdentity (AMS xs) = MS.mapMultiplicities id xs === xs
@@ -146,7 +147,8 @@ prop_mapMultiplicitiesIdentity (AMS xs) = MS.mapMultiplicities id xs === xs
 prop_mapMultiplicitiesZero :: AMS -> Property
 prop_mapMultiplicitiesZero (AMS xs) = MS.mapMultiplicities (const 0) xs === MS.empty
 
-prop_mapMultiplicitiesComposition :: Fun Natural Natural -> Fun Natural Natural -> AMS -> Property
+prop_mapMultiplicitiesComposition ::
+    Fun Natural' Natural' -> Fun Natural' Natural' -> AMS -> Property
 prop_mapMultiplicitiesComposition fFun gFun (AMS xs) =
     MS.mapMultiplicities f (MS.mapMultiplicities g xs) === MS.mapMultiplicities (f . g) xs
   where
@@ -154,7 +156,7 @@ prop_mapMultiplicitiesComposition fFun gFun (AMS xs) =
     g = zeroPreserving gFun
 
     zeroPreserving _ 0 = 0
-    zeroPreserving fun n = applyFun fun n
+    zeroPreserving fun n = coerce (applyFun fun) n
 
 prop_mapMaybeIdentity :: AMS -> Property
 prop_mapMaybeIdentity (AMS xs) = MS.mapMaybe Just xs === xs
@@ -189,11 +191,12 @@ prop_mapMaybeWithMultiplicityMapMaybe fun (AMS xs) =
     f = applyFun fun
 
 prop_mapMaybeWithMultiplicityMapWithMultiplicity ::
-    Fun (Int, Natural) (Int, Natural) -> AMS -> Property
+    Fun (Int, Natural') (Int, Natural') -> AMS -> Property
 prop_mapMaybeWithMultiplicityMapWithMultiplicity fun (AMS xs) =
     MS.mapMaybeWithMultiplicity (\x n -> Just $ f x n) xs === MS.mapWithMultiplicity f xs
   where
-    f = curry $ applyFun fun
+    f :: Int -> Natural -> (Int, Natural)
+    f = curry . coerce $ applyFun fun
 
 prop_concatMapLeftIdentity :: Int -> Fun Int AMS -> Property
 prop_concatMapLeftIdentity x fun = MS.concatMap f (MS.singleton x) === f x

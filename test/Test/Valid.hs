@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
 module Test.Valid (
@@ -5,12 +6,12 @@ module Test.Valid (
 ) where
 
 import Data.Bifunctor
+import Data.Coerce
 import Data.Functor.Identity
 import Data.List.NonEmpty (NonEmpty (..))
 import qualified Data.Map as M
 import qualified Data.MultiSet.Natural as MS
 import qualified Data.Set as S
-import Numeric.Natural
 import Test.Gen
 import Test.Tasty
 import Test.Tasty.QuickCheck
@@ -70,40 +71,46 @@ tests =
             \x (LNat n) -> MS.setMultiplicity x n
         , preservesFun "filter" $
             MS.filter
-        , preservesFun "filterWithMultiplicity" $
-            MS.filterWithMultiplicity . curry
+        , preservesFun @(Int, Natural') @Bool "filterWithMultiplicity" $
+            coerce (MS.filterWithMultiplicity . curry)
         , preservesFun "filterA" $
             \f -> runIdentity . MS.filterA (Identity . f)
-        , preservesFun "filterWithMultiplicityA" $
-            \f -> runIdentity . MS.filterWithMultiplicityA ((Identity .) . curry f)
+        , preservesFun @(Int, Natural') @Bool "filterWithMultiplicityA" $
+            coerce $
+                \f -> runIdentity . MS.filterWithMultiplicityA ((Identity .) . curry f)
         , preservesFun @Int @Int "map" $
             MS.map
-        , preservesFun @(Int, Natural) @(Char, Natural) "mapWithMultiplicity" $
-            MS.mapWithMultiplicity . curry
-        , preservesFun "mapMultiplicities" $
-            MS.mapMultiplicities
+        , preservesFun @(Int, Natural') @(Char, Natural') "mapWithMultiplicity"
+            $ coerce
+            $ MS.mapWithMultiplicity . curry
+        , preservesFun @Natural' @Natural' "mapMultiplicities" $
+            coerce MS.mapMultiplicities
         , preservesFun @Int @(Maybe Int) "mapMaybe" $
             MS.mapMaybe
-        , preservesFun @(Int, Natural) @(Maybe (Integer, Natural)) "mapMaybeWithMultiplicity" $
-            MS.mapMaybeWithMultiplicity . curry
+        , preservesFun @(Int, Natural') @(Maybe (Integer, Natural')) "mapMaybeWithMultiplicity"
+            $ coerce
+            $ MS.mapMaybeWithMultiplicity . curry
         , preservesFun @Int @AMS "concatMap" $
             \f -> MS.concatMap (getAMS . f)
         , preservesFun @Int @String "traverse" $
             \f -> runIdentity . MS.traverse (Identity . f)
         , preservesFun @Int @(Maybe Float) "traverseMaybe" $
             \f -> runIdentity . MS.traverseMaybe (Identity . f)
-        , preservesFun @(Int, Natural) @(Bool, Natural) "traverseWithMultiplicity" $
-            \f -> runIdentity . MS.traverseWithMultiplicity ((Identity .) . curry f)
-        , preservesFun @(Int, Natural) @(Maybe (Word, Natural)) "traverseMaybeWithMultiplicity" $
-            \f -> runIdentity . MS.traverseMaybeWithMultiplicity ((Identity .) . curry f)
+        , preservesFun @(Int, Natural') @(Bool, Natural') "traverseWithMultiplicity" $
+            coerce $
+                \f -> runIdentity . MS.traverseWithMultiplicity (\x n -> Identity $ f (x, n))
+        , preservesFun @(Int, Natural') @(Maybe (Word, Natural')) "traverseMaybeWithMultiplicity" $
+            coerce $
+                \f -> runIdentity . MS.traverseMaybeWithMultiplicity (\x n -> Identity $ f (x, n))
         , preservesAllFun "partition" $
             \f -> pair . MS.partition f
-        , preservesAllFun "partitionWithMultiplicity" $
-            \f -> pair . MS.partitionWithMultiplicity (curry f)
+        , preservesAllFun @(Int, Natural') @Bool @[] "partitionWithMultiplicity" $
+            coerce $
+                \f -> pair . MS.partitionWithMultiplicity (curry f)
         , preservesAllFun "partitionA" $
             \f -> pair . runIdentity . MS.partitionA (Identity . f)
-        , preservesAllFun "partitionWithMultiplicityA" $
-            \f ->
+        , preservesAllFun @(Int, Natural') @Bool @[] "partitionWithMultiplicityA" $
+            coerce $ \f ->
                 pair
                     . runIdentity
                     . MS.partitionWithMultiplicityA ((Identity .) . curry f)
@@ -117,10 +124,11 @@ tests =
             fmap snd . MS.maxViewWithMultiplicity
         , preservesAll1 "split" $
             \x ms -> let (lt, _, gt) = MS.split x ms in [lt, gt]
-        , preservesFun1 "alterMultiplicity" $
-            MS.alterMultiplicity
-        , preservesFun1 "alterMultiplicityF" $
-            \f x -> runIdentity . MS.alterMultiplicityF (Identity . f) x
+        , preservesFun1 @Natural' @Natural' @Int "alterMultiplicity" $
+            coerce MS.alterMultiplicity
+        , preservesFun1 @Natural' @Natural' @Int "alterMultiplicityF" $
+            coerce $
+                \f x -> runIdentity . MS.alterMultiplicityF (Identity . f) x
         ]
 
 constructs :: (Arbitrary a, Show a, Ord b) => String -> (a -> MS.MultiSet b) -> TestTree

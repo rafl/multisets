@@ -186,6 +186,7 @@ import Data.List (genericReplicate)
 import Data.List.NonEmpty (NonEmpty (..))
 import qualified Data.Map.Strict as M
 import Data.Maybe (fromMaybe)
+import qualified Data.Semigroup as SG
 import qualified Data.Set as S
 import GHC.Generics
 import GHC.Natural
@@ -213,11 +214,12 @@ newtype MultiSet a = MS {unMS :: Tally a} -- invariant: n > 0
     deriving (Eq, Generic, NFData)
 
 -- | Via 'union'.
-instance (Ord a) => Semigroup (MultiSet a) where
+instance (Ord a) => SG.Semigroup (MultiSet a) where
     (<>) = union
 
 instance (Ord a) => Monoid (MultiSet a) where
     mempty = empty
+    mappend = (SG.<>)
 
 {- | Orders multisets as their sorted 'toList' expansions would be ordered,
   giving an ordering based on elements rather than the internal representation.
@@ -226,7 +228,7 @@ instance (Ord a) => Ord (MultiSet a) where
     compare as bs = compareRuns (M.toAscList $ unMS as) (M.toAscList $ unMS bs)
       where
         compareRuns ((x, n) : xs) ((y, m) : ys) =
-            compare x y <> case compare n m of
+            compare x y SG.<> case compare n m of
                 EQ -> compareRuns xs ys
                 LT -> if P.null xs then LT else GT
                 GT -> if P.null ys then GT else LT
@@ -245,15 +247,16 @@ instance (Ord a, Read a) => Read (MultiSet a) where
             (xs, rest') <- reads rest
             pure (fromMultiplicityList xs, rest')
 
--- | Wrapper providing 'Semigroup' and 'Monoid' using 'maxUnion' rather than 'union'.
+-- | Wrapper providing 'SG.Semigroup' and 'Monoid' using 'maxUnion' rather than 'union'.
 newtype MaxUnion a = MaxUnion {getMaxUnion :: MultiSet a}
     deriving (Eq, Ord, Show, Read, Generic, NFData)
 
-instance (Ord a) => Semigroup (MaxUnion a) where
+instance (Ord a) => SG.Semigroup (MaxUnion a) where
     (<>) = coerce maxUnion
 
 instance (Ord a) => Monoid (MaxUnion a) where
     mempty = coerce empty
+    mappend = (SG.<>)
 
 -- | The empty 'MultiSet'.
 empty :: MultiSet a

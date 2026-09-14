@@ -2,6 +2,7 @@ module Test.Updates (
     tests,
 ) where
 
+import Data.Coerce
 import Data.Functor.Identity
 import qualified Data.MultiSet.Natural as MS
 import Numeric.Natural
@@ -114,23 +115,26 @@ prop_setMultiplicityAlterMultiplicity (LNat n) (AMSWithKey x xs) =
 prop_alterMultiplicityIdentity :: AMSWithKey -> Property
 prop_alterMultiplicityIdentity (AMSWithKey x xs) = MS.alterMultiplicity id x xs === xs
 
-prop_alterMultiplicityMultiplicity :: Fun Natural Natural -> AMSWithKey -> Property
+prop_alterMultiplicityMultiplicity :: Fun Natural' Natural' -> AMSWithKey -> Property
 prop_alterMultiplicityMultiplicity fun (AMSWithKey x xs) =
     MS.multiplicity x (MS.alterMultiplicity f x xs) === f (MS.multiplicity x xs)
   where
-    f = applyFun fun
+    f :: Natural -> Natural
+    f = coerce $ applyFun fun
 
-prop_alterMultiplicityPreservesOthers :: Fun Natural Natural -> AMSWithKey -> Property
+prop_alterMultiplicityPreservesOthers :: Fun Natural' Natural' -> AMSWithKey -> Property
 prop_alterMultiplicityPreservesOthers fun (AMSWithKey x xs) =
     MS.deleteAll x (MS.alterMultiplicity f x xs) === MS.deleteAll x xs
   where
-    f = applyFun fun
+    f :: Natural -> Natural
+    f = coerce $ applyFun fun
 
-prop_alterMultiplicityFIdentity :: Fun Natural Natural -> AMSWithKey -> Property
+prop_alterMultiplicityFIdentity :: Fun Natural' Natural' -> AMSWithKey -> Property
 prop_alterMultiplicityFIdentity fun (AMSWithKey x xs) =
     runIdentity (MS.alterMultiplicityF (Identity . f) x xs) === MS.alterMultiplicity f x xs
   where
-    f = applyFun fun
+    f :: Natural -> Natural
+    f = coerce $ applyFun fun
 
 monus :: Natural -> Natural -> Natural
 monus x y

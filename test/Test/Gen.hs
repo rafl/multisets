@@ -1,3 +1,4 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE TupleSections #-}
 
 module Test.Gen (
@@ -7,9 +8,11 @@ module Test.Gen (
     AMSWithKey (..),
     AMSWithKey2 (..),
     AMSsWithKey (..),
+    Natural' (..),
 ) where
 
 import Data.List.NonEmpty (NonEmpty (..))
+import qualified Data.List.NonEmpty as NE
 import qualified Data.MultiSet.Natural as MS
 import Numeric.Natural
 import Test.QuickCheck
@@ -34,7 +37,7 @@ instance (Ord a, Arbitrary a) => Arbitrary (AMSOf a) where
             <$> listOf ((,) <$> arbitrary <*> (succ . getLNat <$> arbitrary))
     shrink (AMS ms) = AMS . MS.fromMultiplicityList <$> shrinkList f (MS.toMultiplicityList ms)
       where
-        f (x, n) = map (,n) (shrink x) ++ map (x,) (filter (> 0) $ shrink n)
+        f (x, n) = map (,n) (shrink x) ++ map (x,) (filter (> 0) $ shrinkIntegral n)
 
 type AMS = AMSOf Int
 
@@ -92,7 +95,20 @@ instance Arbitrary AMSsWithKey where
 
     shrink (AMSsWithKey x xss) =
         [ AMSsWithKey x (getAMS <$> yss)
-        | yss <- shrink (AMS <$> xss)
-        , length yss >= 2
+        | y : y' : ys <- shrinkList shrink $ NE.toList (AMS <$> xss)
+        , let yss = y :| (y' : ys)
         , all (MS.member x . getAMS) yss
         ]
+
+newtype Natural' = Natural' {getNatural :: Natural}
+    deriving (Eq, Ord, Show, Num, Real, Enum, Integral)
+
+instance Arbitrary Natural' where
+    arbitrary = Natural' <$> arbitrarySizedNatural
+    shrink (Natural' n) = Natural' <$> shrinkIntegral n
+
+instance CoArbitrary Natural' where
+    coarbitrary = coarbitraryIntegral . getNatural
+
+instance Function Natural' where
+    function = functionIntegral

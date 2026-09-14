@@ -8,6 +8,7 @@ import Control.DeepSeq
 import Control.Exception
 import Data.Either
 import Data.List (sort)
+import qualified Data.Semigroup as SG
 import qualified Data.MultiSet.Natural as MS
 import qualified GHC.Generics as G
 import Test.Gen
@@ -84,32 +85,34 @@ prop_showReadPrec :: AMS -> Property
 prop_showReadPrec (AMS xs) = readsPrec 11 (showsPrec 11 xs "") === [(xs, "")]
 
 prop_semigroupAssociative :: AMS -> AMS -> AMS -> Property
-prop_semigroupAssociative (AMS xs) (AMS ys) (AMS zs) = (xs <> ys) <> zs === xs <> (ys <> zs)
+prop_semigroupAssociative (AMS xs) (AMS ys) (AMS zs) =
+    (xs SG.<> ys) SG.<> zs === xs SG.<> (ys SG.<> zs)
 
 prop_monoidLeftIdentity :: AMS -> Property
-prop_monoidLeftIdentity (AMS xs) = mempty <> xs === xs
+prop_monoidLeftIdentity (AMS xs) = mempty SG.<> xs === xs
 
 prop_monoidRightIdentity :: AMS -> Property
-prop_monoidRightIdentity (AMS xs) = xs <> mempty === xs
+prop_monoidRightIdentity (AMS xs) = xs SG.<> mempty === xs
 
 prop_maxUnionShowRead :: AMS -> Property
 prop_maxUnionShowRead = ((===) <$> read . show <*> id) . MS.MaxUnion . getAMS
 
 prop_maxUnionAssociative :: AMS -> AMS -> AMS -> Property
-prop_maxUnionAssociative (AMS xs) (AMS ys) (AMS zs) = (mx <> my) <> mz === mx <> (my <> mz)
+prop_maxUnionAssociative (AMS xs) (AMS ys) (AMS zs) =
+    (mx SG.<> my) SG.<> mz === mx SG.<> (my SG.<> mz)
   where
     mx = MS.MaxUnion xs
     my = MS.MaxUnion ys
     mz = MS.MaxUnion zs
 
 prop_maxUnionLeftIdentity :: AMS -> Property
-prop_maxUnionLeftIdentity (AMS xs) = mempty <> MS.MaxUnion xs === MS.MaxUnion xs
+prop_maxUnionLeftIdentity (AMS xs) = mempty SG.<> MS.MaxUnion xs === MS.MaxUnion xs
 
 prop_maxUnionRightIdentity :: AMS -> Property
-prop_maxUnionRightIdentity (AMS xs) = MS.MaxUnion xs <> mempty === MS.MaxUnion xs
+prop_maxUnionRightIdentity (AMS xs) = MS.MaxUnion xs SG.<> mempty === MS.MaxUnion xs
 
 prop_maxUnionIdempotent :: AMS -> Property
-prop_maxUnionIdempotent (AMS xs) = mx <> mx === mx
+prop_maxUnionIdempotent (AMS xs) = mx SG.<> mx === mx
   where
     mx = MS.MaxUnion xs
 

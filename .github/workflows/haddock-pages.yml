@@ -7,12 +7,9 @@ jobs:
   haddock:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Set up haskell
       uses: haskell-actions/setup@v2
-      with:
-        ghc-version: '9.12.1'
-        cabal-version: '3.14.1.1'
     - name: Generate haddock API docs
       run: cabal haddock --builddir=haddock_build --haddock-hyperlinked-source --haddock-html-location='https://hackage.haskell.org/package/$pkg-$version/docs'
     - name: Find generated HTML
@@ -34,4 +31,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

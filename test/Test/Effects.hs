@@ -2,6 +2,7 @@ module Test.Effects (
     tests,
 ) where
 
+import Data.Coerce
 import qualified Data.MultiSet.Natural as MS
 import Numeric.Natural
 import Test.Gen
@@ -34,14 +35,14 @@ prop_filterA fun (AMS xs) =
     f = applyFun fun
     (seen, ys) = MS.filterA (\x -> ([x], f x)) xs
 
-prop_filterWithMultiplicityA :: Fun (Int, Natural) Bool -> AMS -> Property
+prop_filterWithMultiplicityA :: Fun (Int, Natural') Bool -> AMS -> Property
 prop_filterWithMultiplicityA fun (AMS xs) =
     conjoin
         [ seen === MS.toMultiplicityList xs
         , ys === MS.filterWithMultiplicity (curry f) xs
         ]
   where
-    f = applyFun fun
+    f = coerce $ applyFun fun
     (seen, ys) = MS.filterWithMultiplicityA (\x n -> ([(x, n)], f (x, n))) xs
 
 prop_partitionA :: Fun Int Bool -> AMS -> Property
@@ -54,14 +55,14 @@ prop_partitionA fun (AMS xs) =
     f = applyFun fun
     (seen, ys) = MS.partitionA (\x -> ([x], f x)) xs
 
-prop_partitionWithMultiplicityA :: Fun (Int, Natural) Bool -> AMS -> Property
+prop_partitionWithMultiplicityA :: Fun (Int, Natural') Bool -> AMS -> Property
 prop_partitionWithMultiplicityA fun (AMS xs) =
     conjoin
         [ seen === MS.toMultiplicityList xs
         , ys === MS.partitionWithMultiplicity (curry f) xs
         ]
   where
-    f = applyFun fun
+    f = coerce $ applyFun fun
     (seen, ys) = MS.partitionWithMultiplicityA (\x n -> ([(x, n)], f (x, n))) xs
 
 prop_traverse :: Fun Int Int -> AMS -> Property
@@ -84,24 +85,26 @@ prop_traverseMaybe fun (AMS xs) =
     f = applyFun fun
     (seen, ys) = MS.traverseMaybe (\x -> ([x], f x)) xs
 
-prop_traverseWithMultiplicity :: Fun (Int, Natural) (Int, Natural) -> AMS -> Property
+prop_traverseWithMultiplicity :: Fun (Int, Natural') (Int, Natural') -> AMS -> Property
 prop_traverseWithMultiplicity fun (AMS xs) =
     conjoin
         [ seen === MS.toMultiplicityList xs
         , ys === MS.mapWithMultiplicity (curry f) xs
         ]
   where
-    f = applyFun fun
+    f :: (Int, Natural) -> (Int, Natural)
+    f = coerce $ applyFun fun
     (seen, ys) = MS.traverseWithMultiplicity (\x n -> ([(x, n)], f (x, n))) xs
 
-prop_traverseMaybeWithMultiplicity :: Fun (Int, Natural) (Maybe (Int, Natural)) -> AMS -> Property
+prop_traverseMaybeWithMultiplicity :: Fun (Int, Natural') (Maybe (Int, Natural')) -> AMS -> Property
 prop_traverseMaybeWithMultiplicity fun (AMS xs) =
     conjoin
         [ seen === MS.toMultiplicityList xs
         , ys === MS.mapMaybeWithMultiplicity (curry f) xs
         ]
   where
-    f = applyFun fun
+    f :: (Int, Natural) -> Maybe (Int, Natural)
+    f = coerce $ applyFun fun
     (seen, ys) = MS.traverseMaybeWithMultiplicity (\x n -> ([(x, n)], f (x, n))) xs
 
 prop_traverseWithMultiplicity_ :: AMS -> Property
@@ -113,12 +116,12 @@ prop_traverseWithMultiplicity_ (AMS xs) =
   where
     (seen, y) = MS.traverseWithMultiplicity_ (\x n -> ([(x, n)], ())) xs
 
-prop_alterMultiplicityF :: Fun Natural Natural -> AMSWithKey -> Property
+prop_alterMultiplicityF :: Fun Natural' Natural' -> AMSWithKey -> Property
 prop_alterMultiplicityF fun (AMSWithKey x xs) =
     conjoin
         [ seen === [MS.multiplicity x xs]
         , ys === MS.alterMultiplicity f x xs
         ]
   where
-    f = applyFun fun
+    f = coerce $ applyFun fun
     (seen, ys) = MS.alterMultiplicityF (\n -> ([n], f n)) x xs
