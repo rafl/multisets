@@ -10,7 +10,6 @@ import Data.Either
 import Data.List (sort)
 import qualified Data.MultiSet.Natural as MS
 import qualified Data.Semigroup as SG
-import qualified GHC.Generics as G
 import Test.Gen
 import Test.Tasty
 import Test.Tasty.QuickCheck
@@ -52,7 +51,6 @@ tests =
         , testProperty "MaxUnion/Monoid/left identity" prop_maxUnionLeftIdentity
         , testProperty "MaxUnion/Monoid/right identity" prop_maxUnionRightIdentity
         , testProperty "MaxUnion/idempotent" prop_maxUnionIdempotent
-        , testProperty "Generic/roundtrip" prop_genericRoundtrip
         , testProperty "NFData/forces elements" $
             ioProperty $ do
                 let xs = MS.singleton (NFKey 0 undefined)
@@ -60,7 +58,6 @@ tests =
                 pure $ isLeft result
         , testProperty "MaxUnion/Ord/semantics" prop_maxUnionOrdSemantics
         , testProperty "MaxUnion/Ord/EQ agrees with Eq" prop_maxUnionOrdEq
-        , testProperty "MaxUnion/Generic/roundtrip" prop_maxUnionGenericRoundtrip
         , testProperty "MaxUnion/NFData/defined" prop_maxUnionNFDataDefined
         , testProperty "MaxUnion/NFData/forces elements" $
             ioProperty $ do
@@ -116,9 +113,6 @@ prop_maxUnionIdempotent (AMS xs) = mx SG.<> mx === mx
   where
     mx = MS.MaxUnion xs
 
-prop_genericRoundtrip :: AMS -> Property
-prop_genericRoundtrip (AMS xs) = G.to (G.from xs) === xs
-
 data NFKey = NFKey Int Int
 
 instance Eq NFKey where
@@ -141,11 +135,6 @@ prop_maxUnionOrdEq (AMS xs) (AMS ys) =
   where
     mx = MS.MaxUnion xs
     my = MS.MaxUnion ys
-
-prop_maxUnionGenericRoundtrip :: AMS -> Property
-prop_maxUnionGenericRoundtrip (AMS xs) = G.to (G.from mx) === mx
-  where
-    mx = MS.MaxUnion xs
 
 prop_maxUnionNFDataDefined :: AMS -> Property
 prop_maxUnionNFDataDefined (AMS xs) = rnf (MS.MaxUnion xs) `seq` property True

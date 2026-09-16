@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE TupleSections #-}
 
@@ -26,12 +25,6 @@
 
   When distinct values compare equal under 'Ord', no guarantee is made about
   which value is retained as the representative.
-
-  __Note:__ @'MultiSet' a@ is implemented in terms of @'M.Map' a 'Natural'@,
-  with the additional invariant of all map values being non-zero. The API
-  guarantees that invariant, with the notable exception of the provided
-  'Generic' instance. Use 'Generic' with care, or risk many provided functions
-  behaving observably incorrectly.
 -}
 module Data.MultiSet.Natural (
     -- * Comparison to @Data.MultiSet@ #comparison#
@@ -182,7 +175,6 @@ import qualified Data.Map.Strict as M
 import Data.Maybe (fromMaybe)
 import qualified Data.Semigroup as SG
 import qualified Data.Set as S
-import GHC.Generics
 import GHC.Natural
 import Prelude hiding (concatMap, filter, map, null, traverse)
 import qualified Prelude as P
@@ -205,7 +197,7 @@ with2 = coerce
   with multiplicity zero indicating that the value is absent.
 -}
 newtype MultiSet a = MS {unMS :: Tally a} -- invariant: n > 0
-    deriving (Eq, Generic, NFData)
+    deriving (Eq, NFData)
 
 -- | Via 'union'.
 instance (Ord a) => SG.Semigroup (MultiSet a) where
@@ -243,7 +235,7 @@ instance (Ord a, Read a) => Read (MultiSet a) where
 
 -- | Wrapper providing 'SG.Semigroup' and 'Monoid' using 'maxUnion' rather than 'union'.
 newtype MaxUnion a = MaxUnion {getMaxUnion :: MultiSet a}
-    deriving (Eq, Ord, Show, Read, Generic, NFData)
+    deriving (Eq, Ord, Show, Read, NFData)
 
 instance (Ord a) => SG.Semigroup (MaxUnion a) where
     (<>) = coerce maxUnion
