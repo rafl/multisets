@@ -13,7 +13,7 @@
   A 'MultiSet' is like a 'Data.Set.Set', except that values may occur more than
   once. The number of occurrences of a value is its /multiplicity/.
 
-  In contrast to 'Data.MultiSet', this module represents multiplicities by
+  In contrast to "Data.MultiSet", this module represents multiplicities by
   'Natural', allowing them to exceed the range of 'Int'. See
   [Comparison to Data.MultiSet]("Data.MultiSet.Natural#g:comparison")
   for more details on how the two modules differ.
@@ -24,21 +24,8 @@
   > import Data.MultiSet.Natural (MultiSet)
   > import qualified Data.MultiSet.Natural as MS
 
-  For types with an 'Ord' instance which isn't structural, e.g.
-
-  >>> data X = X Int String deriving (Show)
-  >>> :{
-        instance Eq X where
-          (X n _) == (X m _) = n == m
-        instance Ord X where
-          (X n _) `compare` (X m _) = n `compare` m
-      :}
-
-  this module will generally retain the value on the left hand side of each
-  operation:
-
-  >>> singleton (X 1 "first") `union` singleton (X 1 "second")
-  fromMultiplicityList [(X 1 "first",2)]
+  When distinct values compare equal under 'Ord', no guarantee is made about
+  which value is retained as the representative.
 
   __Note:__ @'MultiSet' a@ is implemented in terms of @'M.Map' a 'Natural'@,
   with the additional invariant of all map values being non-zero. The API
@@ -47,7 +34,7 @@
   behaving observably incorrectly.
 -}
 module Data.MultiSet.Natural (
-    -- * Comparison to "Data.MultiSet" #comparison#
+    -- * Comparison to @Data.MultiSet@ #comparison#
 
     {- |
 
@@ -59,10 +46,17 @@ module Data.MultiSet.Natural (
         'Natural' rather than 'Int', allowing them to grow beyond the range of
         'Int' while also reflecting that multiplicities cannot be negative.
 
+        This module was also motivated in part by a number of longstanding
+        issues in "Data.MultiSet", including correctness bugs, alongside
+        relatively limited maintenance in recent years.
+
         The API is intentionally similar rather than identical. Some
         "Data.MultiSet" operations are omitted, this module provides some
         additional operations, and a few concepts are exposed under different
         names.
+
+        If you're missing any particular functions from this module, please
+        file a bug report!
     -}
 
     -- * Types
@@ -523,7 +517,7 @@ distinctSize = M.size . unMS
 union :: (Ord a) => MultiSet a -> MultiSet a -> MultiSet a
 union = lift2 $ M.unionWith (+)
 
-{- | The union of a list of 'MultiSets'.
+{- | The union of a list of 'MultiSet's.
 
 For any 'Foldable', use @foldMap id@.
 -}
